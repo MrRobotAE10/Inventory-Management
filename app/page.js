@@ -28,7 +28,7 @@ export default function Home() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [itemName, setItemName] = useState("");
   const [isItemValid, setIsItemValid] = useState();
-  const [searchTerm, setSearchTerm] = useState();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, "inventory"));
@@ -74,15 +74,25 @@ export default function Home() {
     await updateInventory();
   };
 
-  const updateIttem = async (item) => {
-    const docRef = doc(collection(firestore, "inventory"), item);
-    const docSnap = await getDoc(docRef);
-  };
-
   const deleteItem = async (item) => {
     await deleteDoc(doc(collection(firestore, "inventory"), item));
 
     await updateInventory();
+  };
+
+  const searchInventory = (term) => {
+    const filtered = inventory.filter((item) =>
+      item.name.toLowerCase().includes(term.toLowerCase()),
+    );
+
+    if (filtered.length > 0) {
+      const resultString = filtered
+        .map((item) => `${item.name}: ${item.quantity}`)
+        .join("\n");
+      alert(`Search Results:\n\n${resultString}`);
+    } else {
+      alert("No items found matching your search.");
+    }
   };
 
   useEffect(() => {
@@ -160,7 +170,6 @@ export default function Home() {
       </Button>
       {/* Information box */}
       <Box border="1px solid #000">
-        {/* {inventory.forEach((item) => console.log(item))} */}
         <Box
           width="800px"
           height="100px"
@@ -192,8 +201,29 @@ export default function Home() {
             >
               <Typography variant="h6">Search Item</Typography>
               <Stack width="100%" direction="row" gap={2}>
-                <TextField variant="outlined" fullWidth />
-                <Button variant="outlined">Search</Button>
+                <TextField
+                  variant="outlined"
+                  fullWidth
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setIsItemValid(true);
+                  }}
+                  error={isItemValid == false}
+                  helperText={isItemValid == false ? "Empty Field" : ""}
+                />
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    if (searchTerm !== "") {
+                      searchInventory(searchTerm);
+                      setSearchTerm("");
+                      handleSearchClose();
+                    } else setIsItemValid(false);
+                  }}
+                >
+                  Search
+                </Button>
               </Stack>
             </Box>
           </Modal>
@@ -217,8 +247,13 @@ export default function Home() {
               bgcolor="#f0f0f0"
               padding={2}
             >
-              <Typography variant="h4" color="#333" textAlign="left">
-                {name.charAt(0).toUpperCase() + name.slice(1)}
+              <Typography
+                sx={{ textTransform: "capitalize" }}
+                variant="h4"
+                color="#333"
+                textAlign="left"
+              >
+                {name}
               </Typography>
               <Typography variant="h4" color="#333" textAlign="left">
                 {quantity}
