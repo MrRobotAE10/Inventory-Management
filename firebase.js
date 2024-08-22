@@ -13,10 +13,10 @@ const firebaseConfig = {
   storageBucket: "pantry-tracker-app-a8af3.appspot.com",
   messagingSenderId: "994297302405",
   appId: "1:994297302405:web:8ed9d37be9d6946eeac8ec",
-  measurementId: "G-WE1D9TGBLY"
+  measurementId: "G-WE1D9TGBLY",
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-export { firestore }
+export { firestore };
