@@ -11,7 +11,7 @@ import {
   Typography,
   IconButton,
 } from "@mui/material";
-import { Add, Delete, Remove } from "@mui/icons-material";
+import { Add, Delete, Remove, Search } from "@mui/icons-material";
 import {
   collection,
   getDoc,
@@ -25,8 +25,10 @@ import { query } from "firebase/firestore";
 export default function Home() {
   const [inventory, setInventory] = useState([]);
   const [open, setOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [itemName, setItemName] = useState("");
   const [isItemValid, setIsItemValid] = useState();
+  const [searchTerm, setSearchTerm] = useState();
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, "inventory"));
@@ -89,6 +91,8 @@ export default function Home() {
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const handleSearchOpen = () => setSearchOpen(true);
+  const handleSearchClose = () => setSearchOpen(false);
 
   return (
     <Box
@@ -119,7 +123,7 @@ export default function Home() {
           }}
         >
           <Typography variant="h6">Add Item</Typography>
-          <Stack widtg="100%" direction="row" spacing={2}>
+          <Stack width="100%" direction="row" spacing={2}>
             <TextField
               variant="outlined"
               fullWidth
@@ -156,39 +160,73 @@ export default function Home() {
       </Button>
       {/* Information box */}
       <Box border="1px solid #000">
+        {/* {inventory.forEach((item) => console.log(item))} */}
         <Box
           width="800px"
           height="100px"
           bgcolor="#ADD8E6"
           display="flex"
           alignItems="center"
-          justifyContent="center"
+          justifyContent="space-between"
+          padding={1}
         >
-          <Typography variant="h2" color="#333">
+          <Typography variant="h3" color="#333">
             Inventory Items
           </Typography>
+          <Modal open={searchOpen} onClose={handleSearchClose}>
+            <Box
+              position="absolute"
+              top="50%"
+              left="50%"
+              width={400}
+              bgcolor="white"
+              border="2px solid #000"
+              boxShadow={24}
+              p={4}
+              display="flex"
+              flexDirection="column"
+              gap={3}
+              sx={{
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <Typography variant="h6">Search Item</Typography>
+              <Stack width="100%" direction="row" gap={2}>
+                <TextField variant="outlined" fullWidth />
+                <Button variant="outlined">Search</Button>
+              </Stack>
+            </Box>
+          </Modal>
+          <IconButton
+            onClick={() => {
+              handleSearchOpen();
+            }}
+          >
+            <Search />
+          </IconButton>
         </Box>
         <Stack width="800px" height="300px" spacing={2} overflow="auto">
           {inventory.map(({ name, quantity }) => (
             <Box
               key={name}
               width="100%"
-              minHeight="150px"
-              display="flex"
+              minHeight="100px"
+              display="grid"
+              gridTemplateColumns="1fr 100px 200px"
               alignItems="center"
-              justifyContent="space-between"
               bgcolor="#f0f0f0"
-              padding={5}
+              padding={2}
             >
-              <Typography variant="h3" color="#333" textAlign="center">
+              <Typography variant="h4" color="#333" textAlign="left">
                 {name.charAt(0).toUpperCase() + name.slice(1)}
               </Typography>
-              <Typography variant="h3" color="#333" textAlign="center">
+              <Typography variant="h4" color="#333" textAlign="left">
                 {quantity}
               </Typography>
               <Stack
                 direction="row"
                 spacing={3}
+                justifyContent="flex-end"
                 divider={<Divider orientation="vertical" flexItem />}
               >
                 <IconButton
