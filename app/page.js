@@ -9,7 +9,9 @@ import {
   Stack,
   TextField,
   Typography,
+  IconButton,
 } from "@mui/material";
+import { Add, Delete, Remove } from "@mui/icons-material";
 import {
   collection,
   getDoc,
@@ -17,7 +19,6 @@ import {
   getDocs,
   doc,
   deleteDoc,
-  Firestore,
 } from "firebase/firestore";
 import { query } from "firebase/firestore";
 
@@ -25,6 +26,7 @@ export default function Home() {
   const [inventory, setInventory] = useState([]);
   const [open, setOpen] = useState(false);
   const [itemName, setItemName] = useState("");
+  const [isItemValid, setIsItemValid] = useState();
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, "inventory"));
@@ -98,6 +100,7 @@ export default function Home() {
       alignItems="center"
       gap={2}
     >
+      {/* Add Item   */}
       <Modal open={open} onClose={handleClose}>
         <Box
           position="absolute"
@@ -123,14 +126,19 @@ export default function Home() {
               value={itemName}
               onChange={(e) => {
                 setItemName(e.target.value);
+                setIsItemValid(true);
               }}
+              error={isItemValid == false}
+              helperText={isItemValid == false ? "Empty field" : ""}
             />
             <Button
               variant="outlined"
               onClick={() => {
-                addItem(itemName);
-                setItemName("");
-                handleClose();
+                if (itemName !== "") {
+                  addItem(itemName);
+                  setItemName("");
+                  handleClose();
+                } else setIsItemValid(false);
               }}
             >
               Add
@@ -146,6 +154,7 @@ export default function Home() {
       >
         Add New item
       </Button>
+      {/* Information box */}
       <Box border="1px solid #000">
         <Box
           width="800px"
@@ -182,30 +191,30 @@ export default function Home() {
                 spacing={3}
                 divider={<Divider orientation="vertical" flexItem />}
               >
-                <Button
-                  variant="contained"
-                  onClick={() => {
-                    removeItem(name);
-                  }}
-                >
-                  Remove
-                </Button>
-                <Button
-                  variant="contained"
+                <IconButton
                   onClick={() => {
                     addItem(name);
                   }}
+                  aria-label="Add Item"
                 >
-                  Add
-                </Button>
-                <Button
-                  variant="contained"
+                  <Add />
+                </IconButton>
+                <IconButton
+                  onClick={() => {
+                    removeItem(name);
+                  }}
+                  aria-label="Lower Item"
+                >
+                  <Remove />
+                </IconButton>
+                <IconButton
                   onClick={() => {
                     deleteItem(name);
                   }}
+                  aria-label="Delete Item"
                 >
-                  Delete
-                </Button>
+                  <Delete />
+                </IconButton>
               </Stack>
             </Box>
           ))}
